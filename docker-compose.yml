@@ -1,0 +1,37 @@
+version: '3'
+services: 
+  apache2:
+    build: apache2
+    hostname: yourserver.com
+    restart: always
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - letsencryptconfig:/etc/letsencrypt
+      - letsencryptvars:/var/lib/letsencrypt
+    environment:
+      LETS_ENCRYPT_EMAIL: "your@email.com"
+      LETS_ENCRYPT_DOMAINS: "yourserver.com,site2.yourserver.com"
+    labels:
+      io.enonic.backup.data: "/etc/letsencrypt,/var/lib/letsencrypt"
+  jenkins:
+    build: jenkins
+    ports:
+      - "8180:8080"
+    restart: always
+    labels:
+      io.enonic.backup.data: "/var/jenkins_home,/var/www/html/repo"
+    volumes:
+      - jenkinsstorage:/var/jenkins_home
+      - reposhare:/var/www/html/repo
+      - /var/run/docker.sock:/var/run/docker.sock
+  mail:
+    image: enoniccloud/postfix
+    hostname: yourserver.com
+    restart: always
+volumes:
+  jenkinsstorage:
+  reposhare:
+  letsencryptconfig:
+  letsencryptvars:
